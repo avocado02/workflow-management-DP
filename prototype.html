@@ -1,0 +1,1898 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disruptor Post - Workflow Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: fit-content;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(4px);
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-description {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        /* Project List */
+        .project-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .project-header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            gap: 1rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .project-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .project-name {
+            font-weight: 600;
+        }
+
+        .project-client {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-review {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .status-completed {
+            background: rgba(33, 150, 243, 0.3);
+            color: #2196f3;
+            border: 1px solid #2196f3;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* DaVinci Resolve Integration Panel */
+        .davinci-panel {
+            background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .davinci-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .davinci-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .davinci-status {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Task Management Styles */
+        .task-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-color: #4ecdc4;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-card.high-priority {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .task-card.medium-priority {
+            border-left: 4px solid #ffc107;
+        }
+
+        .task-card.low-priority {
+            border-left: 4px solid #4caf50;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #ffffff;
+        }
+
+        .task-project {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            margin: 0;
+        }
+
+        .task-type {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .task-type.supervise {
+            background: rgba(156, 39, 176, 0.3);
+            color: #9c27b0;
+            border: 1px solid #9c27b0;
+        }
+
+        .task-type.approve {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .task-type.qa {
+            background: rgba(33, 150, 243, 0.3);
+            color: #2196f3;
+            border: 1px solid #2196f3;
+        }
+
+        .task-type.execute {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .task-type.review {
+            background: rgba(255, 87, 34, 0.3);
+            color: #ff5722;
+            border: 1px solid #ff5722;
+        }
+
+        .task-description {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .task-deadline {
+            color: #a0a0a0;
+        }
+
+        .task-deadline.overdue {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .task-deadline.due-soon {
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .task-priority {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .priority-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .priority-high {
+            background: #ff6b6b;
+        }
+
+        .priority-medium {
+            background: #ffc107;
+        }
+
+        .priority-low {
+            background: #4caf50;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .task-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .task-btn-primary {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .task-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .task-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .task-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .project-header,
+            .project-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Disruptor Post</div>
+                <nav class="nav-menu">
+                    <a href="#" class="active" data-page="dashboard">Dashboard</a>
+                    <a href="#" data-page="tasks">My Tasks</a>
+                    <a href="#" data-page="projects">Projects</a>
+                    <a href="#" data-page="clients">Clients</a>
+                    <a href="#" data-page="users">Team</a>
+                    <a href="#" data-page="davinci">DaVinci</a>
+                    <a href="#" data-page="reports">Reports</a>
+                </nav>
+                <div class="user-profile">
+                    <span>Sarah Chen</span>
+                    <div class="profile-avatar">SC</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="container">
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">My Workspace</div>
+                    <div class="sidebar-item" onclick="switchPage('tasks')">
+                        <div class="sidebar-icon">📋</div>
+                        <span>My Tasks</span>
+                    </div>
+                    <div class="sidebar-item" onclick="openModal('newProject')">
+                        <div class="sidebar-icon">+</div>
+                        <span>New Project</span>
+                    </div>
+                    <div class="sidebar-item" onclick="openModal('newClient')">
+                        <div class="sidebar-icon">👤</div>
+                        <span>Add Client</span>
+                    </div>
+                    <div class="sidebar-item" onclick="openModal('newUser')">
+                        <div class="sidebar-icon">👥</div>
+                        <span>Add Team Member</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Departments</div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">🎨</div>
+                        <span>VFX</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">🎵</div>
+                        <span>Sound Editorial</span>
+                    </div>
+                    <div class="sidebar-item active">
+                        <div class="sidebar-icon">🎨</div>
+                        <span>Colour Grading</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">🔧</div>
+                        <span>Restoration</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">📦</div>
+                        <span>Delivery</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Recent Activity</div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">📁</div>
+                        <span>Project Alpha updated</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">✅</div>
+                        <span>Beta VFX approved</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <div class="sidebar-icon">🎬</div>
+                        <span>Gamma delivered</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content" id="mainContent">
+                <!-- Dashboard Content -->
+                <div class="page-content" id="dashboardContent">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard Overview</h1>
+                        <button class="btn btn-primary" onclick="openModal('newProject')">
+                            + New Project
+                        </button>
+                    </div>
+
+                    <!-- DaVinci Resolve Integration Panel -->
+                    <div class="davinci-panel">
+                        <div class="davinci-header">
+                            <div class="davinci-logo">DV</div>
+                            <div>
+                                <h3>DaVinci Resolve Integration</h3>
+                                <p>Real-time project monitoring and collaboration</p>
+                            </div>
+                        </div>
+                        <div class="davinci-status">
+                            <div class="status-item">
+                                <div class="status-indicator"></div>
+                                <span>Project Server Connected</span>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-indicator"></div>
+                                <span>3 Active Sessions</span>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-indicator"></div>
+                                <span>Render Queue: 2 jobs</span>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-indicator"></div>
+                                <span>GPU Usage: 78%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Stats -->
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Active Projects</h3>
+                            </div>
+                            <div class="card-value">12</div>
+                            <div class="card-description">3 in color grading, 5 in VFX, 4 in sound</div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Team Utilization</h3>
+                            </div>
+                            <div class="card-value">87%</div>
+                            <div class="card-description">23 team members actively working</div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">This Week's Deliveries</h3>
+                            </div>
+                            <div class="card-value">8</div>
+                            <div class="card-description">95% on-time delivery rate</div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Client Satisfaction</h3>
+                            </div>
+                            <div class="card-value">4.8</div>
+                            <div class="card-description">Average rating from recent projects</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Projects -->
+                    <div class="project-list">
+                        <div class="project-header">
+                            <span>Project Name</span>
+                            <span>Client</span>
+                            <span>Status</span>
+                            <span>Progress</span>
+                            <span>Actions</span>
+                        </div>
+                        <div class="project-row">
+                            <div>
+                                <div class="project-name">Netflix Original Series</div>
+                                <div class="project-client">Episode 1-3 Color Grading</div>
+                            </div>
+                            <span>Netflix Studios</span>
+                            <span class="status-badge status-active">In Progress</span>
+                            <div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%;"></div>
+                                </div>
+                                <small>75%</small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="viewProject('netflix')">View</button>
+                        </div>
+                        <div class="project-row">
+                            <div>
+                                <div class="project-name">Commercial VFX Package</div>
+                                <div class="project-client">Brand campaign visual effects</div>
+                            </div>
+                            <span>Apple Inc.</span>
+                            <span class="status-badge status-review">In Review</span>
+                            <div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 90%;"></div>
+                                </div>
+                                <small>90%</small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="viewProject('apple')">View</button>
+                        </div>
+                        <div class="project-row">
+                            <div>
+                                <div class="project-name">Documentary Restoration</div>
+                                <div class="project-client">Historical footage restoration</div>
+                            </div>
+                            <span>BBC Productions</span>
+                            <span class="status-badge status-completed">Completed</span>
+                            <div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                                <small>100%</small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="viewProject('bbc')">View</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- New Project Modal -->
+    <div class="modal" id="newProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New Project</h2>
+                <button class="modal-close" onclick="closeModal('newProject')">&times;</button>
+            </div>
+            <form id="newProjectForm">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input" placeholder="Enter project name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Client</label>
+                    <select class="form-select" required>
+                        <option value="">Select a client</option>
+                        <option value="netflix">Netflix Studios</option>
+                        <option value="apple">Apple Inc.</option>
+                        <option value="bbc">BBC Productions</option>
+                        <option value="disney">Disney Studios</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Project Type</label>
+                    <select class="form-select" required>
+                        <option value="">Select project type</option>
+                        <option value="vfx">VFX</option>
+                        <option value="color">Color Grading</option>
+                        <option value="sound">Sound Editorial</option>
+                        <option value="restoration">Restoration</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="full">Full Post-Production</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deadline</label>
+                    <input type="date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Project requirements and details"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">DaVinci Resolve Integration</label>
+                    <select class="form-select">
+                        <option value="enabled">Enable DaVinci Resolve Integration</option>
+                        <option value="disabled">Disable Integration</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newProject')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Client Modal -->
+    <div class="modal" id="newClientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Client</h2>
+                <button class="modal-close" onclick="closeModal('newClient')">&times;</button>
+            </div>
+            <form id="newClientForm">
+                <div class="form-group">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="form-input" placeholder="Enter company name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contact Person</label>
+                    <input type="text" class="form-input" placeholder="Primary contact name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="contact@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-input" placeholder="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Industry</label>
+                    <select class="form-select" required>
+                        <option value="">Select industry</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="advertising">Advertising</option>
+                        <option value="broadcast">Broadcast</option>
+                        <option value="streaming">Streaming</option>
+                        <option value="corporate">Corporate</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Preferred Workflow</label>
+                    <select class="form-select">
+                        <option value="standard">Standard Post-Production</option>
+                        <option value="davinci">DaVinci Resolve Centric</option>
+                        <option value="hybrid">Hybrid Workflow</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newClient')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New User Modal -->
+    <div class="modal" id="newUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Team Member</h2>
+                <button class="modal-close" onclick="closeModal('newUser')">&times;</button>
+            </div>
+            <form id="newUserForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="user@disruptorpost.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" required>
+                        <option value="">Select role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="project_manager">Project Manager</option>
+                        <option value="colorist">Colorist</option>
+                        <option value="vfx_artist">VFX Artist</option>
+                        <option value="sound_editor">Sound Editor</option>
+                        <option value="restoration_artist">Restoration Artist</option>
+                        <option value="delivery_coordinator">Delivery Coordinator</option>
+                        <option value="client">Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-select" required>
+                        <option value="">Select department</option>
+                        <option value="vfx">VFX</option>
+                        <option value="color">Color Grading</option>
+                        <option value="sound">Sound Editorial</option>
+                        <option value="restoration">Restoration</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="management">Management</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">DaVinci Resolve Skills</label>
+                    <select class="form-select">
+                        <option value="none">No DaVinci Experience</option>
+                        <option value="basic">Basic User</option>
+                        <option value="intermediate">Intermediate User</option>
+                        <option value="advanced">Advanced User</option>
+                        <option value="expert">Expert/Trainer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-input" placeholder="+1 (555) 123-4567">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newUser')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Team Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state management
+        const appState = {
+            currentPage: 'dashboard',
+            currentUser: {
+                id: 'sc',
+                name: 'Sarah Chen',
+                role: 'admin',
+                department: 'management'
+            },
+            projects: [
+                {
+                    id: 'netflix',
+                    name: 'Netflix Original Series',
+                    client: 'Netflix Studios',
+                    status: 'active',
+                    progress: 75,
+                    type: 'Color Grading',
+                    deadline: '2025-09-15',
+                    davinciIntegration: true
+                },
+                {
+                    id: 'apple',
+                    name: 'Commercial VFX Package',
+                    client: 'Apple Inc.',
+                    status: 'review',
+                    progress: 90,
+                    type: 'VFX',
+                    deadline: '2025-08-25',
+                    davinciIntegration: true
+                },
+                {
+                    id: 'bbc',
+                    name: 'Documentary Restoration',
+                    client: 'BBC Productions',
+                    status: 'completed',
+                    progress: 100,
+                    type: 'Restoration',
+                    deadline: '2025-08-10',
+                    davinciIntegration: false
+                }
+            ],
+            tasks: [
+                {
+                    id: 'task1',
+                    title: 'Final Color Grade Review',
+                    description: 'Review and approve the final color grade for Episode 1. Check consistency across all scenes and verify HDR delivery specs.',
+                    project: 'Netflix Original Series',
+                    projectId: 'netflix',
+                    type: 'approve',
+                    priority: 'high',
+                    deadline: '2025-08-20',
+                    assignedTo: 'sc',
+                    status: 'pending',
+                    estimatedHours: 3,
+                    completedHours: 0
+                },
+                {
+                    id: 'task2',
+                    title: 'VFX Quality Assurance',
+                    description: 'Perform quality check on all VFX shots. Verify compositing quality, edge work, and motion tracking accuracy.',
+                    project: 'Commercial VFX Package',
+                    projectId: 'apple',
+                    type: 'qa',
+                    priority: 'high',
+                    deadline: '2025-08-19',
+                    assignedTo: 'sc',
+                    status: 'in-progress',
+                    estimatedHours: 5,
+                    completedHours: 2
+                },
+                {
+                    id: 'task3',
+                    title: 'Team Performance Review',
+                    description: 'Supervise colorist team performance on current projects. Provide feedback and guidance on workflow optimization.',
+                    project: 'Multiple Projects',
+                    projectId: 'general',
+                    type: 'supervise',
+                    priority: 'medium',
+                    deadline: '2025-08-25',
+                    assignedTo: 'sc',
+                    status: 'pending',
+                    estimatedHours: 4,
+                    completedHours: 1
+                },
+                {
+                    id: 'task4',
+                    title: 'DaVinci Resolve Session Setup',
+                    description: 'Set up collaborative DaVinci Resolve session for new Disney project. Configure project settings and user permissions.',
+                    project: 'Disney Animation Project',
+                    projectId: 'disney',
+                    type: 'execute',
+                    priority: 'medium',
+                    deadline: '2025-08-22',
+                    assignedTo: 'sc',
+                    status: 'pending',
+                    estimatedHours: 2,
+                    completedHours: 0
+                },
+                {
+                    id: 'task5',
+                    title: 'Client Feedback Integration',
+                    description: 'Review client feedback on restoration work and coordinate with team for revisions. Ensure all notes are addressed.',
+                    project: 'Documentary Restoration',
+                    projectId: 'bbc',
+                    type: 'review',
+                    priority: 'low',
+                    deadline: '2025-08-30',
+                    assignedTo: 'sc',
+                    status: 'completed',
+                    estimatedHours: 3,
+                    completedHours: 3
+                },
+                {
+                    id: 'task6',
+                    title: 'Render Queue Approval',
+                    description: 'Approve render settings and queue for Netflix deliverables. Verify all technical specifications meet client requirements.',
+                    project: 'Netflix Original Series',
+                    projectId: 'netflix',
+                    type: 'approve',
+                    priority: 'high',
+                    deadline: '2025-08-21',
+                    assignedTo: 'sc',
+                    status: 'pending',
+                    estimatedHours: 1,
+                    completedHours: 0
+                }
+            ],
+            clients: [
+                { id: 'netflix', name: 'Netflix Studios', contact: 'Jane Smith', email: 'jane@netflix.com' },
+                { id: 'apple', name: 'Apple Inc.', contact: 'John Doe', email: 'john@apple.com' },
+                { id: 'bbc', name: 'BBC Productions', contact: 'Sarah Wilson', email: 'sarah@bbc.co.uk' }
+            ],
+            users: [
+                { id: 'sc', name: 'Sarah Chen', role: 'admin', department: 'management', davinciSkill: 'expert' },
+                { id: 'mj', name: 'Mike Johnson', role: 'colorist', department: 'color', davinciSkill: 'expert' },
+                { id: 'ar', name: 'Alex Rivera', role: 'vfx_artist', department: 'vfx', davinciSkill: 'intermediate' }
+            ],
+            taskFilters: {
+                status: 'all',
+                type: 'all',
+                priority: 'all'
+            }
+        };
+
+        // Navigation handling
+        function handleNavigation() {
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.dataset.page;
+                    switchPage(page);
+                    
+                    // Update active state
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
+        }
+
+        // Page switching
+        function switchPage(page) {
+            appState.currentPage = page;
+            const mainContent = document.getElementById('mainContent');
+            
+            switch(page) {
+                case 'dashboard':
+                    mainContent.innerHTML = getDashboardContent();
+                    break;
+                case 'tasks':
+                    mainContent.innerHTML = getTasksContent();
+                    initializeTaskFilters();
+                    break;
+                case 'projects':
+                    mainContent.innerHTML = getProjectsContent();
+                    break;
+                case 'clients':
+                    mainContent.innerHTML = getClientsContent();
+                    break;
+                case 'users':
+                    mainContent.innerHTML = getUsersContent();
+                    break;
+                case 'davinci':
+                    mainContent.innerHTML = getDaVinciContent();
+                    break;
+                case 'reports':
+                    mainContent.innerHTML = getReportsContent();
+                    break;
+                default:
+                    mainContent.innerHTML = getDashboardContent();
+            }
+        }
+
+        // Content generators
+        function getDashboardContent() {
+            return document.getElementById('dashboardContent').innerHTML;
+        }
+
+        function getTasksContent() {
+            const currentUserId = appState.currentUser.id;
+            const userTasks = appState.tasks.filter(task => task.assignedTo === currentUserId);
+            
+            // Apply filters
+            let filteredTasks = userTasks;
+            if (appState.taskFilters.status !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.status === appState.taskFilters.status);
+            }
+            if (appState.taskFilters.type !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.type === appState.taskFilters.type);
+            }
+            if (appState.taskFilters.priority !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.priority === appState.taskFilters.priority);
+            }
+
+            // Calculate task statistics
+            const totalTasks = userTasks.length;
+            const pendingTasks = userTasks.filter(task => task.status === 'pending').length;
+            const inProgressTasks = userTasks.filter(task => task.status === 'in-progress').length;
+            const overdueTasks = userTasks.filter(task => {
+                const today = new Date();
+                const deadline = new Date(task.deadline);
+                return deadline < today && task.status !== 'completed';
+            }).length;
+
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">My Tasks</h1>
+                    <button class="btn btn-primary" onclick="openTaskModal()">
+                        + Add Task
+                    </button>
+                </div>
+
+                <!-- Task Statistics -->
+                <div class="task-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalTasks}</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${pendingTasks}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${inProgressTasks}</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${overdueTasks}</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="task-filters">
+                    <div class="filter-btn ${appState.taskFilters.status === 'all' ? 'active' : ''}" onclick="filterTasks('status', 'all')">All Status</div>
+                    <div class="filter-btn ${appState.taskFilters.status === 'pending' ? 'active' : ''}" onclick="filterTasks('status', 'pending')">Pending</div>
+                    <div class="filter-btn ${appState.taskFilters.status === 'in-progress' ? 'active' : ''}" onclick="filterTasks('status', 'in-progress')">In Progress</div>
+                    <div class="filter-btn ${appState.taskFilters.status === 'completed' ? 'active' : ''}" onclick="filterTasks('status', 'completed')">Completed</div>
+                    
+                    <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.3); margin: 0 0.5rem;"></div>
+                    
+                    <div class="filter-btn ${appState.taskFilters.type === 'all' ? 'active' : ''}" onclick="filterTasks('type', 'all')">All Types</div>
+                    <div class="filter-btn ${appState.taskFilters.type === 'approve' ? 'active' : ''}" onclick="filterTasks('type', 'approve')">Approve</div>
+                    <div class="filter-btn ${appState.taskFilters.type === 'supervise' ? 'active' : ''}" onclick="filterTasks('type', 'supervise')">Supervise</div>
+                    <div class="filter-btn ${appState.taskFilters.type === 'qa' ? 'active' : ''}" onclick="filterTasks('type', 'qa')">QA</div>
+                    <div class="filter-btn ${appState.taskFilters.type === 'review' ? 'active' : ''}" onclick="filterTasks('type', 'review')">Review</div>
+                    <div class="filter-btn ${appState.taskFilters.type === 'execute' ? 'active' : ''}" onclick="filterTasks('type', 'execute')">Execute</div>
+                    
+                    <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.3); margin: 0 0.5rem;"></div>
+                    
+                    <div class="filter-btn ${appState.taskFilters.priority === 'all' ? 'active' : ''}" onclick="filterTasks('priority', 'all')">All Priority</div>
+                    <div class="filter-btn ${appState.taskFilters.priority === 'high' ? 'active' : ''}" onclick="filterTasks('priority', 'high')">High</div>
+                    <div class="filter-btn ${appState.taskFilters.priority === 'medium' ? 'active' : ''}" onclick="filterTasks('priority', 'medium')">Medium</div>
+                    <div class="filter-btn ${appState.taskFilters.priority === 'low' ? 'active' : ''}" onclick="filterTasks('priority', 'low')">Low</div>
+                </div>
+
+                <!-- Task Grid -->
+                <div class="task-grid">
+                    ${filteredTasks.map(task => {
+                        const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'completed';
+                        const isDueSoon = !isOverdue && (new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24) <= 2;
+                        
+                        return `
+                            <div class="task-card ${task.priority}-priority">
+                                <div class="task-header">
+                                    <div>
+                                        <h3 class="task-title">${task.title}</h3>
+                                        <p class="task-project">${task.project}</p>
+                                    </div>
+                                    <span class="task-type ${task.type}">${task.type.toUpperCase()}</span>
+                                </div>
+                                
+                                <p class="task-description">${task.description}</p>
+                                
+                                <div class="task-meta">
+                                    <span class="task-deadline ${isOverdue ? 'overdue' : isDueSoon ? 'due-soon' : ''}">
+                                        📅 Due: ${new Date(task.deadline).toLocaleDateString()}
+                                        ${isOverdue ? ' (OVERDUE)' : isDueSoon ? ' (DUE SOON)' : ''}
+                                    </span>
+                                    <div class="task-priority">
+                                        <div class="priority-indicator priority-${task.priority}"></div>
+                                        <span>${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin: 1rem 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.85rem; color: #a0a0a0;">Progress</span>
+                                        <span style="font-size: 0.85rem; color: #a0a0a0;">${task.completedHours}/${task.estimatedHours}h</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${(task.completedHours / task.estimatedHours) * 100}%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="task-actions">
+                                    ${task.status === 'completed' ? 
+                                        '<button class="task-btn task-btn-secondary" onclick="viewTaskDetails(\'' + task.id + '\')">View Details</button>' :
+                                        '<button class="task-btn task-btn-primary" onclick="startTask(\'' + task.id + '\')">Start Work</button>' +
+                                        '<button class="task-btn task-btn-secondary" onclick="viewTaskDetails(\'' + task.id + '\')">Details</button>'
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                ${filteredTasks.length === 0 ? 
+                    '<div style="text-align: center; padding: 3rem; color: #a0a0a0;"><h3>No tasks match your current filters</h3><p>Try adjusting your filter selection to see more tasks.</p></div>' : 
+                    ''
+                }
+            `;
+        }
+
+        function getProjectsContent() {
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">Project Management</h1>
+                    <button class="btn btn-primary" onclick="openModal('newProject')">
+                        + New Project
+                    </button>
+                </div>
+
+                <div class="project-list">
+                    <div class="project-header">
+                        <span>Project Details</span>
+                        <span>Client</span>
+                        <span>Type</span>
+                        <span>Deadline</span>
+                        <span>DaVinci</span>
+                        <span>Status</span>
+                        <span>Progress</span>
+                        <span>Actions</span>
+                    </div>
+                    ${appState.projects.map(project => `
+                        <div class="project-row">
+                            <div>
+                                <div class="project-name">${project.name}</div>
+                                <div class="project-client">ID: ${project.id.toUpperCase()}</div>
+                            </div>
+                            <span>${project.client}</span>
+                            <span>${project.type}</span>
+                            <span>${project.deadline}</span>
+                            <span>${project.davinciIntegration ? '✅ Enabled' : '❌ Disabled'}</span>
+                            <span class="status-badge status-${project.status}">${project.status.charAt(0).toUpperCase() + project.status.slice(1)}</span>
+                            <div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${project.progress}%;"></div>
+                                </div>
+                                <small>${project.progress}%</small>
+                            </div>
+                            <button class="btn btn-secondary" onclick="viewProject('${project.id}')">Manage</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getClientsContent() {
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">Client Management</h1>
+                    <button class="btn btn-primary" onclick="openModal('newClient')">
+                        + Add Client
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+                    ${appState.clients.map(client => `
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">${client.name}</h3>
+                            </div>
+                            <div style="margin: 1rem 0;">
+                                <p><strong>Contact:</strong> ${client.contact}</p>
+                                <p><strong>Email:</strong> ${client.email}</p>
+                                <p><strong>Active Projects:</strong> ${appState.projects.filter(p => p.client === client.name).length}</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="editClient('${client.id}')">Edit</button>
+                                <button class="btn btn-secondary" onclick="viewClientProjects('${client.id}')">Projects</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getUsersContent() {
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">Team Management</h1>
+                    <button class="btn btn-primary" onclick="openModal('newUser')">
+                        + Add Team Member
+                    </button>
+                </div>
+
+                <div class="project-list">
+                    <div class="project-header">
+                        <span>Name</span>
+                        <span>Role</span>
+                        <span>Department</span>
+                        <span>DaVinci Skills</span>
+                        <span>Status</span>
+                        <span>Actions</span>
+                    </div>
+                    ${appState.users.map(user => `
+                        <div class="project-row">
+                            <div>
+                                <div class="project-name">${user.name}</div>
+                                <div class="project-client">${user.id.toUpperCase()}</div>
+                            </div>
+                            <span>${user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                            <span>${user.department.charAt(0).toUpperCase() + user.department.slice(1)}</span>
+                            <span class="status-badge status-${user.davinciSkill === 'expert' ? 'completed' : user.davinciSkill === 'advanced' ? 'active' : 'review'}">${user.davinciSkill.charAt(0).toUpperCase() + user.davinciSkill.slice(1)}</span>
+                            <span class="status-badge status-active">Active</span>
+                            <button class="btn btn-secondary" onclick="editUser('${user.id}')">Edit</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getDaVinciContent() {
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">DaVinci Resolve Integration</h1>
+                    <button class="btn btn-primary" onclick="refreshDaVinciStatus()">
+                        🔄 Refresh Status
+                    </button>
+                </div>
+
+                <div class="davinci-panel">
+                    <div class="davinci-header">
+                        <div class="davinci-logo">DV</div>
+                        <div>
+                            <h3>Project Server Status</h3>
+                            <p>Real-time monitoring and control center</p>
+                        </div>
+                    </div>
+                    <div class="davinci-status">
+                        <div class="status-item">
+                            <div class="status-indicator"></div>
+                            <span>Server Online</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator"></div>
+                            <span>Database Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator"></div>
+                            <span>3 Active Sessions</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator"></div>
+                            <span>License Pool: 5/10 Used</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Active DaVinci Sessions</h3>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-description">
+                            <p>• Sarah Chen - Netflix Color Grade</p>
+                            <p>• Mike Johnson - Apple Commercial</p>
+                            <p>• Alex Rivera - BBC Restoration</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Render Queue</h3>
+                        </div>
+                        <div class="card-value">2</div>
+                        <div class="card-description">
+                            <p>• Netflix Ep1 - 45% complete</p>
+                            <p>• Apple Final - Queued</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">GPU Utilization</h3>
+                        </div>
+                        <div class="card-value">78%</div>
+                        <div class="card-description">
+                            <p>Workstation 1: 85%</p>
+                            <p>Workstation 2: 71%</p>
+                            <p>Workstation 3: 0% (Available)</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Storage Usage</h3>
+                        </div>
+                        <div class="card-value">67%</div>
+                        <div class="card-description">
+                            <p>Project Files: 2.3 TB</p>
+                            <p>Cache: 890 GB</p>
+                            <p>Available: 1.2 TB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-list">
+                    <div class="project-header">
+                        <span>Project</span>
+                        <span>Timeline</span>
+                        <span>Colorist</span>
+                        <span>Status</span>
+                        <span>Last Sync</span>
+                        <span>Actions</span>
+                    </div>
+                    <div class="project-row">
+                        <span>Netflix Original Series</span>
+                        <span>Episode_01_Final</span>
+                        <span>Sarah Chen</span>
+                        <span class="status-badge status-active">Active Session</span>
+                        <span>2 minutes ago</span>
+                        <button class="btn btn-secondary" onclick="openDaVinciProject('netflix')">Open DaVinci</button>
+                    </div>
+                    <div class="project-row">
+                        <span>Apple Commercial</span>
+                        <span>Commercial_Master_v3</span>
+                        <span>Mike Johnson</span>
+                        <span class="status-badge status-review">Render Queue</span>
+                        <span>15 minutes ago</span>
+                        <button class="btn btn-secondary" onclick="openDaVinciProject('apple')">Monitor Render</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getReportsContent() {
+            return `
+                <div class="page-header">
+                    <h1 class="page-title">Analytics & Reports</h1>
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        📊 Generate Report
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Project Completion Rate</h3>
+                        </div>
+                        <div class="card-value">95%</div>
+                        <div class="card-description">On-time delivery this month</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Average Project Duration</h3>
+                        </div>
+                        <div class="card-value">18</div>
+                        <div class="card-description">Days from start to delivery</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Client Satisfaction</h3>
+                        </div>
+                        <div class="card-value">4.8</div>
+                        <div class="card-description">Average rating (5-point scale)</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Revenue This Month</h3>
+                        </div>
+                        <div class="card-value">$127K</div>
+                        <div class="card-description">15% increase from last month</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h3>Department Performance</h3>
+                    <div class="project-list">
+                        <div class="project-header">
+                            <span>Department</span>
+                            <span>Active Projects</span>
+                            <span>Avg. Completion Time</span>
+                            <span>Utilization Rate</span>
+                            <span>Quality Score</span>
+                        </div>
+                        <div class="project-row">
+                            <span>Color Grading</span>
+                            <span>5</span>
+                            <span>8.2 days</span>
+                            <span>92%</span>
+                            <span class="status-badge status-completed">4.9/5</span>
+                        </div>
+                        <div class="project-row">
+                            <span>VFX</span>
+                            <span>3</span>
+                            <span>12.5 days</span>
+                            <span>87%</span>
+                            <span class="status-badge status-active">4.7/5</span>
+                        </div>
+                        <div class="project-row">
+                            <span>Sound Editorial</span>
+                            <span>2</span>
+                            <span>6.1 days</span>
+                            <span>78%</span>
+                            <span class="status-badge status-active">4.6/5</span>
+                        </div>
+                        <div class="project-row">
+                            <span>Restoration</span>
+                            <span>1</span>
+                            <span>15.3 days</span>
+                            <span>65%</span>
+                            <span class="status-badge status-review">4.4/5</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal handling
+        function openModal(modalType) {
+            const modal = document.getElementById(modalType + 'Modal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(modalType) {
+            const modal = document.getElementById(modalType + 'Modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Form handling
+        function handleForms() {
+            // New Project Form
+            document.getElementById('newProjectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Simulate project creation
+                alert('Project created successfully!');
+                closeModal('newProject');
+                // Refresh projects view if on projects page
+                if (appState.currentPage === 'projects') {
+                    switchPage('projects');
+                }
+            });
+
+            // New Client Form
+            document.getElementById('newClientForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Simulate client creation
+                alert('Client added successfully!');
+                closeModal('newClient');
+                // Refresh clients view if on clients page
+                if (appState.currentPage === 'clients') {
+                    switchPage('clients');
+                }
+            });
+
+            // New User Form
+            document.getElementById('newUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Simulate user creation
+                alert('Team member added successfully!');
+                closeModal('newUser');
+                // Refresh users view if on users page
+                if (appState.currentPage === 'users') {
+                    switchPage('users');
+                }
+            });
+        }
+
+        // Utility functions
+        function viewProject(projectId) {
+            alert(`Opening project details for: ${projectId}`);
+        }
+
+        function editClient(clientId) {
+            alert(`Editing client: ${clientId}`);
+        }
+
+        function viewClientProjects(clientId) {
+            alert(`Viewing projects for client: ${clientId}`);
+        }
+
+        function editUser(userId) {
+            alert(`Editing user: ${userId}`);
+        }
+
+        function refreshDaVinciStatus() {
+            alert('DaVinci Resolve status refreshed!');
+        }
+
+        function openDaVinciProject(projectId) {
+            alert(`Opening DaVinci Resolve project: ${projectId}`);
+        }
+
+        function generateReport() {
+            alert('Generating comprehensive report...');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            handleNavigation();
+            handleForms();
+        });
+    </script>
+</body>
+</html>
