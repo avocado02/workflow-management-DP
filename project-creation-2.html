@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard - The Great Restoration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #343a40;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-info h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .project-meta {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #343a40;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .davinci-import {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+        }
+
+        .import-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .import-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .shots-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .shot-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: all 0.3s ease;
+        }
+
+        .shot-item:hover {
+            background: #f8f9fa;
+        }
+
+        .shot-info {
+            flex: 1;
+        }
+
+        .shot-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .shot-meta {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .shot-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-progress {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-review {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-complete {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: #e9ecef;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #667eea;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .task-checkbox.checked {
+            background: #667eea;
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .task-assignee {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .team-avatars {
+            display: flex;
+            gap: -5px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 2px solid white;
+            margin-left: -5px;
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 5px;
+        }
+
+        .import-status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .davinci-projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .project-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .project-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .timeline-visual {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            height: 4px;
+            border-radius: 2px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .auto-task-preview {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .task-preview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .task-preview-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="project-info">
+                <h1>The Great Restoration</h1>
+                <div class="project-meta">TGR-2025-XY9 • Client: Heritage Films • 127 minutes • Started Aug 25, 2025</div>
+            </div>
+            <div class="header-actions">
+                <span class="status-badge">● In Production</span>
+                <button class="btn btn-primary" onclick="showSettings()">
+                    ⚙️ Settings
+                </button>
+                <button class="btn btn-primary" onclick="showReports()">
+                    📊 Reports
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" style="color: #667eea;">0</div>
+                <div class="stat-label">Total Shots</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #28a745;">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #ffc107;">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #dc3545;">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <!-- DaVinci Resolve Import -->
+                <div class="card davinci-import">
+                    <div class="import-content">
+                        <div class="import-icon">🎬</div>
+                        <h2 style="margin-bottom: 10px;">Import from DaVinci Resolve</h2>
+                        <p style="opacity: 0.9; margin-bottom: 20px;">Connect to DaVinci Resolve to automatically import shots and create tasks</p>
+                        <button class="btn btn-primary" onclick="showImportModal()" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5);">
+                            📡 Connect to DaVinci Resolve
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Shots Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            🎯 Shots Overview
+                        </h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-outline" onclick="addShotManually()" style="padding: 6px 12px; font-size: 0.8rem;">
+                                + Add Shot
+                            </button>
+                            <select style="padding: 6px 10px; border: 1px solid #e9ecef; border-radius: 6px;">
+                                <option>All Shots</option>
+                                <option>VFX Shots</option>
+                                <option>Color Shots</option>
+                                <option>Audio Shots</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="shots-container" class="shots-container">
+                        <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">🎬</div>
+                            <h3 style="margin-bottom: 10px;">No Shots Available</h3>
+                            <p>Import shots from DaVinci Resolve or add them manually to get started</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks & Workflow -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            ✅ Recent Tasks
+                        </h3>
+                        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;">
+                            View All Tasks
+                        </button>
+                    </div>
+                    
+                    <div id="tasks-container">
+                        <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
+                            <div style="font-size: 3rem; margin-bottom: 15px;">📋</div>
+                            <p>Tasks will appear here once shots are imported</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <!-- Project Progress -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📈 Progress</h3>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 5px;">0%</div>
+                        <div style="color: #6c757d;">Overall Completion</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #6c757d; margin-top: 10px;">
+                        <span>Start: Aug 25</span>
+                        <span>End: Oct 15</span>
+                    </div>
+                </div>
+
+                <!-- Team Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">👥 Team</h3>
+                    </div>
+                    <div id="team-overview">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div class="team-avatars" id="team-avatars">
+                                <div class="avatar">SJ</div>
+                                <div class="avatar" style="background: #28a745;">JS</div>
+                                <div class="avatar" style="background: #dc3545;">MG</div>
+                                <div class="avatar" style="background: #ffc107; color: #343a40;">JT</div>
+                            </div>
+                            <span style="color: #6c757d; font-size: 0.9rem;">4 members</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #6c757d;">
+                            <div style="margin: 8px 0;">📊 Sarah Johnson - Project Manager</div>
+                            <div style="margin: 8px 0;">🎬 John Smith - VFX Artist</div>
+                            <div style="margin: 8px 0;">🎵 Maria Garcia - Sound Editor</div>
+                            <div style="margin: 8px 0;">🎨 James Taylor - Colorist</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Server Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🖥️ Servers</h3>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #f1f3f4;">
+                            <span style="font-size: 0.9rem;">VFX Render Server</span>
+                            <span style="color: #28a745; font-size: 0.8rem;">● Online</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #f1f3f4;">
+                            <span style="font-size: 0.9rem;">Storage Server</span>
+                            <span style="color: #28a745; font-size: 0.8rem;">● Online</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #f1f3f4;">
+                            <span style="font-size: 0.9rem;">Color Server</span>
+                            <span style="color: #28a745; font-size: 0.8rem;">● Online</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0;">
+                            <span style="font-size: 0.9rem;">Backup Server</span>
+                            <span style="color: #28a745; font-size: 0.8rem;">● Online</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚡ Quick Actions</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-outline" onclick="addMeeting()">📅 Schedule Meeting</button>
+                        <button class="btn btn-outline" onclick="generateReport()">📊 Generate Report</button>
+                        <button class="btn btn-outline" onclick="exportProject()">📤 Export Project</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="import-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin: 0; color: #667eea;">Import from DaVinci Resolve</h3>
+                <button class="close-modal" onclick="closeImportModal()">&times;</button>
+            </div>
+            
+            <div class="import-status status-info" id="connection-status">
+                <strong>🔍 Scanning for DaVinci Resolve instances...</strong>
+                <div style="margin-top: 10px; font-size: 0.9rem;">Make sure DaVinci Resolve is running and API access is enabled.</div>
+            </div>
+
+            <div id="davinci-projects-container" style="display: none;">
+                <h4 style="margin: 20px 0 15px 0;">Available Projects:</h4>
+                <div class="davinci-projects">
+                    <div class="project-card" onclick="selectDaVinciProject(this, 'great-restoration-v3')">
+                        <h4>The Great Restoration v3</h4>
+                        <p style="color: #6c757d; font-size: 0.9rem; margin: 5px 0;">127 shots • Last modified: Today</p>
+                        <div class="timeline-visual"></div>
+                        <div class="timeline-markers">
+                            <span>00:00:00</span>
+                            <span>02:07:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card" onclick="selectDaVinciProject(this, 'great-restoration-v2')">
+                        <h4>The Great Restoration v2</h4>
+                        <p style="color: #6c757d; font-size: 0.9rem; margin: 5px 0;">124 shots • Last modified: Yesterday</p>
+                        <div class="timeline-visual"></div>
+                        <div class="timeline-markers">
+                            <span>00:00:00</span>
+                            <span>02:07:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="import-preview" style="display: none;">
+                    <h4 style="margin: 20px 0 15px 0;">Import Preview:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h5 style="color: #667eea; margin-bottom: 10px;">Shots to Import (127)</h5>
+                            <div style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                                <div style="font-size: 0.85rem; margin: 3px 0;">Shot_001 (00:00:15 - 00:02:30)</div>
+                                <div style="font-size: 0.85rem; margin: 3px 0;">Shot_002 (00:02:30 - 00:04:15)</div>
+                                <div style="font-size: 0.85rem; margin: 3px 0;">Shot_003 (00:04:15 - 00:06:20)</div>
+                                <div style="color: #6c757d; margin: 10px 0; font-style: italic;">... and 124 more shots</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 style="color: #28a745; margin-bottom: 10px;">Auto-Generated Tasks</h5>
+                            <div class="auto-task-preview">
+                                <div class="task-preview-item">
+                                    <span>VFX Compositing</span>
+                                    <span style="color: #6c757d;">127 tasks</span>
+                                </div>
+                                <div class="task-preview-item">
+                                    <span>Color Grading</span>
+                                    <span style="color: #6c757d;">127 tasks</span>
+                                </div>
+                                <div class="task-preview-item">
+                                    <span>Quality Control</span>
+                                    <span style="color: #6c757d;">127 tasks</span>
+                                </div>
+                                <div class="task-preview-item">
+                                    <span>Audio Sync</span>
+                                    <span style="color: #6c757d;">127 tasks</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="importShots()" id="import-btn" disabled>
+                        Import Shots & Create Tasks
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" id="notification">
+        <strong>✅ Import Successful!</strong><br>
+        <span>127 shots imported and 508 tasks created automatically</span>
+    </div>
+
+    <script>
+        let selectedDaVinciProject = null;
+        let importedShots = [];
+        let createdTasks = [];
+
+        function showImportModal() {
+            document.getElementById('import-modal').classList.add('show');
+            simulateDaVinciConnection();
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.remove('show');
+            resetImportModal();
+        }
+
+        function resetImportModal() {
+            selectedDaVinciProject = null;
+            document.getElementById('connection-status').className = 'import-status status-info';
+            document.getElementById('connection-status').innerHTML = `
+                <strong>🔍 Scanning for DaVinci Resolve instances...</strong>
+                <div style="margin-top: 10px; font-size: 0.9rem;">Make sure DaVinci Resolve is running and API access is enabled.</div>
+            `;
+            document.getElementById('davinci-projects-container').style.display = 'none';
+            document.getElementById('import-preview').style.display = 'none';
+            document.getElementById('import-btn').disabled = true;
+        function resetImportModal() {
+            selectedDaVinciProject = null;
+            document.getElementById('connection-status').className = 'import-status status-info';
+            document.getElementById('connection-status').innerHTML = `
+                <strong>🔍 Scanning for DaVinci Resolve instances...</strong>
+                <div style="margin-top: 10px; font-size: 0.9rem;">Make sure DaVinci Resolve is running and API access is enabled.</div>
+            `;
+            document.getElementById('davinci-projects-container').style.display = 'none';
+            document.getElementById('import-preview').style.display = 'none';
+            document.getElementById('import-btn').disabled = true;
+            document.querySelectorAll('.project-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        function simulateDaVinciConnection() {
+            setTimeout(() => {
+                document.getElementById('connection-status').className = 'import-status status-success';
+                document.getElementById('connection-status').innerHTML = `
+                    <strong>✅ Connected to DaVinci Resolve</strong>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">Found 2 projects available for import.</div>
+                `;
+                document.getElementById('davinci-projects-container').style.display = 'block';
+            }, 2000);
+        }
+
+        function selectDaVinciProject(element, projectId) {
+            document.querySelectorAll('.project-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedDaVinciProject = projectId;
+            
+            document.getElementById('import-preview').style.display = 'block';
+            document.getElementById('import-btn').disabled = false;
+        }
+
+        function importShots() {
+            if (!selectedDaVinciProject) return;
+
+            const btn = document.getElementById('import-btn');
+            btn.textContent = 'Importing...';
+            btn.disabled = true;
+
+            // Simulate import process
+            setTimeout(() => {
+                // Generate sample shots
+                importedShots = [];
+                createdTasks = [];
+                
+                for (let i = 1; i <= 127; i++) {
+                    const shot = {
+                        id: `shot_${i.toString().padStart(3, '0')}`,
+                        name: `Shot_${i.toString().padStart(3, '0')}`,
+                        duration: Math.floor(Math.random() * 180) + 30, // 30-210 seconds
+                        startTime: `00:${Math.floor(i * 2 / 60).toString().padStart(2, '0')}:${(i * 2 % 60).toString().padStart(2, '0')}`,
+                        status: 'new',
+                        complexity: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low'
+                    };
+                    importedShots.push(shot);
+
+                    // Create tasks for each shot based on project requirements
+                    const shotTasks = [
+                        { type: 'vfx_compositing', assignee: 'John Smith', shot: shot.id },
+                        { type: 'color_grading', assignee: 'James Taylor', shot: shot.id },
+                        { type: 'quality_control', assignee: 'Nina Patel', shot: shot.id },
+                        { type: 'audio_sync', assignee: 'Maria Garcia', shot: shot.id }
+                    ];
+                    createdTasks.push(...shotTasks);
+                }
+
+                updateDashboardAfterImport();
+                closeImportModal();
+                showNotification();
+                
+            }, 3000);
+        }
+
+        function updateDashboardAfterImport() {
+            // Update stats
+            document.querySelector('.stats-grid .stat-card:nth-child(1) .stat-number').textContent = importedShots.length;
+            document.querySelector('.stats-grid .stat-card:nth-child(2) .stat-number').textContent = '0';
+            document.querySelector('.stats-grid .stat-card:nth-child(3) .stat-number').textContent = '0';
+            document.querySelector('.stats-grid .stat-card:nth-child(4) .stat-number').textContent = importedShots.length;
+
+            // Update shots container
+            const shotsContainer = document.getElementById('shots-container');
+            shotsContainer.innerHTML = '';
+            
+            importedShots.slice(0, 10).forEach(shot => { // Show first 10 shots
+                const shotElement = document.createElement('div');
+                shotElement.className = 'shot-item';
+                shotElement.innerHTML = `
+                    <div class="shot-info">
+                        <div class="shot-name">${shot.name}</div>
+                        <div class="shot-meta">${shot.startTime} • ${shot.duration}s • ${shot.complexity} complexity</div>
+                    </div>
+                    <div class="shot-status status-new">New</div>
+                `;
+                shotsContainer.appendChild(shotElement);
+            });
+
+            if (importedShots.length > 10) {
+                const moreElement = document.createElement('div');
+                moreElement.style.textAlign = 'center';
+                moreElement.style.padding = '15px';
+                moreElement.style.color = '#6c757d';
+                moreElement.innerHTML = `<em>... and ${importedShots.length - 10} more shots</em>`;
+                shotsContainer.appendChild(moreElement);
+            }
+
+            // Update tasks container
+            const tasksContainer = document.getElementById('tasks-container');
+            tasksContainer.innerHTML = '<div class="task-list"></div>';
+            const taskList = tasksContainer.querySelector('.task-list');
+
+            // Show recent tasks (first 8)
+            createdTasks.slice(0, 8).forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item';
+                taskElement.innerHTML = `
+                    <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                    <div class="task-info">
+                        <div class="task-title">${formatTaskType(task.type)} - ${task.shot}</div>
+                        <div class="task-assignee">Assigned to ${task.assignee}</div>
+                    </div>
+                `;
+                taskList.appendChild(taskElement);
+            });
+
+            // Hide the import card
+            document.querySelector('.davinci-import').style.display = 'none';
+        }
+
+        function formatTaskType(type) {
+            const types = {
+                'vfx_compositing': 'VFX Compositing',
+                'color_grading': 'Color Grading',
+                'quality_control': 'Quality Control',
+                'audio_sync': 'Audio Synchronization'
+            };
+            return types[type] || type;
+        }
+
+        function toggleTask(checkbox) {
+            checkbox.classList.toggle('checked');
+            updateProgressAfterTaskComplete();
+        }
+
+        function updateProgressAfterTaskComplete() {
+            const completedTasks = document.querySelectorAll('.task-checkbox.checked').length;
+            const totalTasks = document.querySelectorAll('.task-checkbox').length;
+            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            // Update progress display
+            document.querySelector('.sidebar .card:nth-child(1) .stat-number').textContent = `${percentage}%`;
+            document.querySelector('.progress-fill').style.width = `${percentage}%`;
+            
+            // Update stats
+            const completedShots = Math.floor(completedTasks / 4); // 4 tasks per shot
+            const inProgressShots = Math.ceil((completedTasks % 4) / 4);
+            const pendingShots = importedShots.length - completedShots - inProgressShots;
+            
+            document.querySelector('.stats-grid .stat-card:nth-child(2) .stat-number').textContent = completedShots;
+            document.querySelector('.stats-grid .stat-card:nth-child(3) .stat-number').textContent = inProgressShots;
+            document.querySelector('.stats-grid .stat-card:nth-child(4) .stat-number').textContent = Math.max(0, pendingShots);
+        }
+
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function addShotManually() {
+            const shotName = prompt('Enter shot name:');
+            if (shotName) {
+                const newShot = {
+                    id: `manual_${Date.now()}`,
+                    name: shotName,
+                    duration: 60,
+                    startTime: '00:00:00',
+                    status: 'new',
+                    complexity: 'medium'
+                };
+                
+                importedShots.push(newShot);
+                
+                // Add to UI
+                const shotsContainer = document.getElementById('shots-container');
+                if (shotsContainer.innerHTML.includes('No Shots Available')) {
+                    shotsContainer.innerHTML = '';
+                }
+                
+                const shotElement = document.createElement('div');
+                shotElement.className = 'shot-item';
+                shotElement.innerHTML = `
+                    <div class="shot-info">
+                        <div class="shot-name">${newShot.name}</div>
+                        <div class="shot-meta">Manual Entry • ${newShot.duration}s • ${newShot.complexity} complexity</div>
+                    </div>
+                    <div class="shot-status status-new">New</div>
+                `;
+                shotsContainer.insertBefore(shotElement, shotsContainer.firstChild);
+                
+                // Update stats
+                document.querySelector('.stats-grid .stat-card:nth-child(1) .stat-number').textContent = importedShots.length;
+                document.querySelector('.stats-grid .stat-card:nth-child(4) .stat-number').textContent = parseInt(document.querySelector('.stats-grid .stat-card:nth-child(4) .stat-number').textContent) + 1;
+            }
+        }
+
+        function addMeeting() {
+            const meetingTitle = prompt('Meeting title:');
+            if (meetingTitle) {
+                alert(`📅 Meeting "${meetingTitle}" scheduled for tomorrow at 10:00 AM\n\nTeam members will be notified automatically.`);
+            }
+        }
+
+        function generateReport() {
+            alert('📊 Generating project report...\n\nReport will include:\n• Shot progress breakdown\n• Team performance metrics\n• Timeline analysis\n• Budget tracking\n\nReport will be ready in your email shortly.');
+        }
+
+        function exportProject() {
+            alert('📤 Exporting project data...\n\nExporting:\n• Project configuration\n• Shot list and metadata\n• Task assignments\n• Progress reports\n\nExport file will be downloaded shortly.');
+        }
+
+        function showSettings() {
+            alert('⚙️ Project Settings\n\nAvailable settings:\n• Team member permissions\n• Server access management\n• Workflow automation rules\n• Notification preferences\n• Integration settings');
+        }
+
+        function showReports() {
+            alert('📊 Available Reports\n\n• Daily progress report\n• Weekly team performance\n• Budget vs actual costs\n• Timeline analysis\n• Quality control metrics\n• Server utilization stats');
+        }
+
+        // Simulate real-time updates
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Randomly update server status (just for demo)
+                const servers = document.querySelectorAll('.card:last-child div div');
+                const randomServer = servers[Math.floor(Math.random() * servers.length)];
+                if (randomServer && Math.random() > 0.95) { // 5% chance
+                    const statusElement = randomServer.querySelector('span:last-child');
+                    if (statusElement) {
+                        const isOnline = statusElement.textContent.includes('Online');
+                        statusElement.innerHTML = isOnline ? '<span style="color: #ffc107;">● Busy</span>' : '<span style="color: #28a745;">● Online</span>';
+                        
+                        setTimeout(() => {
+                            statusElement.innerHTML = '<span style="color: #28a745;">● Online</span>';
+                        }, 3000);
+                    }
+                }
+            }, 10000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modals when clicking outside
+            document.getElementById('import-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImportModal();
+                }
+            });
+            
+            // Start real-time updates simulation
+            simulateRealTimeUpdates();
+        });
+
+        // Auto-hide notification after page load
+        setTimeout(() => {
+            const notification = document.getElementById('notification');
+            if (notification.classList.contains('show')) {
+                notification.classList.remove('show');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

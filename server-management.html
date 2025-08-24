@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Management - Post-Production System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #343a40;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breadcrumb {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .breadcrumb a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            width: 300px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .server-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .server-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .server-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .server-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-busy {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .server-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 8px;
+        }
+
+        .server-type {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .server-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .spec-item {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .spec-value {
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .server-projects {
+            margin: 15px 0;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .project-tag {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .server-users {
+            margin: 15px 0;
+        }
+
+        .user-count {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .user-avatars {
+            display: flex;
+            gap: -5px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
+            border: 2px solid white;
+            margin-left: -5px;
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+        }
+
+        .server-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f1f3f4;
+        }
+
+        .stats-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .servers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .page-actions {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>Server Management</h1>
+                <div class="breadcrumb">
+                    <a href="#">Dashboard</a> / <a href="#">Administration</a> / Server Management
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="showCreateServerModal()">
+                Add New Server
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" style="color: #28a745;">12</div>
+                <div class="stat-label">Online Servers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color: #dc3545;">2</div>
+                <div class="stat-label">Offline Servers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color: #667eea;">8</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color: #ffc107;">45</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+        </div>
+
+        <div class="page-actions">
+            <div class="filter-section">
+                <div class="search-box">
+                    <input type="text" placeholder="Search servers..." onkeyup="filterServers(this.value)">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <select onchange="filterByStatus(this.value)">
+                    <option value="">All Status</option>
+                    <option value="online">Online</option>
+                    <option value="offline">Offline</option>
+                    <option value="busy">Busy</option>
+                </select>
+                <select onchange="filterByType(this.value)">
+                    <option value="">All Types</option>
+                    <option value="vfx">VFX Servers</option>
+                    <option value="storage">Storage Servers</option>
+                    <option value="color">Color Servers</option>
+                    <option value="audio">Audio Servers</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-outline" onclick="exportServers()">Export</button>
+                <button class="btn btn-secondary" onclick="bulkActions()">Bulk Actions</button>
+            </div>
+        </div>
+
+        <div class="servers-grid" id="servers-container">
+            <!-- VFX Render Server -->
+            <div class="server-card" data-type="vfx" data-status="online">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52);">🖥️</div>
+                    <div class="server-status status-online">● Online</div>
+                </div>
+                <div class="server-name">VFX Render Server 01</div>
+                <div class="server-type">High-Performance VFX Workstation</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">32 Core Xeon</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">128GB DDR4</span></div>
+                    <div class="spec-item">GPU: <span class="spec-value">RTX 4090</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">2TB NVMe</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (3)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">The Great Restoration</span>
+                        <span class="project-tag">Silent Echo</span>
+                        <span class="project-tag">Future Vision</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">6 users with access</div>
+                    <div class="user-avatars">
+                        <div class="avatar">JS</div>
+                        <div class="avatar" style="background: #28a745;">DP</div>
+                        <div class="avatar" style="background: #dc3545;">LW</div>
+                        <div class="avatar" style="background: #ffc107; color: #343a40;">MK</div>
+                        <div class="avatar" style="background: #6f42c1;">AR</div>
+                        <div class="avatar" style="background: #fd7e14;">+1</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('vfx-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-outline" onclick="viewUsers('vfx-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        👥 Users
+                    </button>
+                    <button class="btn btn-outline" onclick="viewStats('vfx-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Storage Server -->
+            <div class="server-card" data-type="storage" data-status="online">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">💾</div>
+                    <div class="server-status status-online">● Online</div>
+                </div>
+                <div class="server-name">Storage Server Alpha</div>
+                <div class="server-type">Primary Project Storage</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">16 Core Intel</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">64GB DDR4</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">50TB RAID 6</span></div>
+                    <div class="spec-item">Network: <span class="spec-value">10Gb Ethernet</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (5)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">The Great Restoration</span>
+                        <span class="project-tag">Silent Echo</span>
+                        <span class="project-tag">Future Vision</span>
+                        <span class="project-tag">+2 more</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">12 users with access</div>
+                    <div class="user-avatars">
+                        <div class="avatar">SJ</div>
+                        <div class="avatar" style="background: #28a745;">JS</div>
+                        <div class="avatar" style="background: #dc3545;">MG</div>
+                        <div class="avatar" style="background: #ffc107; color: #343a40;">JT</div>
+                        <div class="avatar" style="background: #6f42c1;">RC</div>
+                        <div class="avatar" style="background: #fd7e14;">+7</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('storage-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-outline" onclick="viewUsers('storage-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        👥 Users
+                    </button>
+                    <button class="btn btn-outline" onclick="viewStats('storage-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Color Grading Server -->
+            <div class="server-card" data-type="color" data-status="busy">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🎨</div>
+                    <div class="server-status status-busy">● Busy</div>
+                </div>
+                <div class="server-name">Color Grading Server</div>
+                <div class="server-type">DaVinci Resolve Workstation</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">24 Core AMD</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">256GB DDR4</span></div>
+                    <div class="spec-item">GPU: <span class="spec-value">RTX A6000</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">8TB NVMe</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (2)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">The Great Restoration</span>
+                        <span class="project-tag">Silent Echo</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">4 users with access</div>
+                    <div class="user-avatars">
+                        <div class="avatar">JT</div>
+                        <div class="avatar" style="background: #28a745;">SM</div>
+                        <div class="avatar" style="background: #dc3545;">AL</div>
+                        <div class="avatar" style="background: #ffc107; color: #343a40;">KB</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('color-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-outline" onclick="viewUsers('color-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        👥 Users
+                    </button>
+                    <button class="btn btn-outline" onclick="viewStats('color-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Audio Processing Server -->
+            <div class="server-card" data-type="audio" data-status="online">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">🎵</div>
+                    <div class="server-status status-online">● Online</div>
+                </div>
+                <div class="server-name">Audio Processing Server</div>
+                <div class="server-type">Professional Audio Workstation</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">16 Core Intel</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">128GB DDR4</span></div>
+                    <div class="spec-item">Audio: <span class="spec-value">Pro Tools HDX</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">4TB SSD</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (3)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">The Great Restoration</span>
+                        <span class="project-tag">Future Vision</span>
+                        <span class="project-tag">Sonic Dreams</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">5 users with access</div>
+                    <div class="user-avatars">
+                        <div class="avatar">MG</div>
+                        <div class="avatar" style="background: #28a745;">AL</div>
+                        <div class="avatar" style="background: #dc3545;">TW</div>
+                        <div class="avatar" style="background: #ffc107; color: #343a40;">NK</div>
+                        <div class="avatar" style="background: #6f42c1;">DJ</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('audio-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-outline" onclick="viewUsers('audio-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        👥 Users
+                    </button>
+                    <button class="btn btn-outline" onclick="viewStats('audio-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Backup Server -->
+            <div class="server-card" data-type="backup" data-status="offline">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">☁️</div>
+                    <div class="server-status status-offline">● Offline</div>
+                </div>
+                <div class="server-name">Backup Server Beta</div>
+                <div class="server-type">Automated Backup System</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">8 Core Intel</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">32GB DDR4</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">100TB RAID 10</span></div>
+                    <div class="spec-item">Network: <span class="spec-value">10Gb Fiber</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (6)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">All Active Projects</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">System managed</div>
+                    <div class="user-avatars">
+                        <div class="avatar" style="background: #6c757d;">SYS</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('backup-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-danger" onclick="startServer('backup-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        🚀 Start
+                    </button>
+                </div>
+            </div>
+
+            <!-- Film Restoration Workstation -->
+            <div class="server-card" data-type="restoration" data-status="online">
+                <div class="server-header">
+                    <div class="server-icon" style="background: linear-gradient(135deg, #ffecd2, #fcb69f);">🔧</div>
+                    <div class="server-status status-online">● Online</div>
+                </div>
+                <div class="server-name">Film Restoration Workstation</div>
+                <div class="server-type">Specialized Restoration Tools</div>
+                
+                <div class="server-specs">
+                    <div class="spec-item">CPU: <span class="spec-value">20 Core Xeon</span></div>
+                    <div class="spec-item">RAM: <span class="spec-value">256GB DDR4</span></div>
+                    <div class="spec-item">GPU: <span class="spec-value">Quadro RTX 8000</span></div>
+                    <div class="spec-item">Storage: <span class="spec-value">12TB SSD</span></div>
+                </div>
+
+                <div class="server-projects">
+                    <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 5px;">Assigned Projects (2)</div>
+                    <div class="project-tags">
+                        <span class="project-tag">The Great Restoration</span>
+                        <span class="project-tag">Classic Revival</span>
+                    </div>
+                </div>
+
+                <div class="server-users">
+                    <div class="user-count">3 users with access</div>
+                    <div class="user-avatars">
+                        <div class="avatar">RC</div>
+                        <div class="avatar" style="background: #28a745;">NP</div>
+                        <div class="avatar" style="background: #dc3545;">KM</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-outline" onclick="manageServer('restore-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        ⚙️ Manage
+                    </button>
+                    <button class="btn btn-outline" onclick="viewUsers('restore-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        👥 Users
+                    </button>
+                    <button class="btn btn-outline" onclick="viewStats('restore-01')" style="font-size: 0.8rem; padding: 6px 12px;">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" id="notification">
+        Server created successfully and assigned to projects!
+    </div>
+
+    <script>
+        function showCreateServerModal() {
+            alert('Create Server Modal would open here. This would include forms for server configuration, project assignment, and user access management.');
+        }
+
+        function manageServer(serverId) {
+            alert(`Managing server: ${serverId}\n\nThis would open the server management interface with options for:\n• Server configuration\n• Resource monitoring\n• User access control\n• Project assignments`);
+        }
+
+        function viewUsers(serverId) {
+            alert(`User Management for Server: ${serverId}\n\nThis would open a detailed user management interface showing:\n• All users with access\n• Permission levels\n• Access logs\n• Add/remove user functionality`);
+        }
+
+        function viewStats(serverId) {
+            alert(`Server Statistics for: ${serverId}\n\nThis would show detailed analytics including:\n• CPU and memory usage over time\n• Storage utilization\n• Network traffic\n• User activity logs\n• Performance metrics`);
+        }
+
+        function startServer(serverId) {
+            const serverCard = document.querySelector(`[onclick*="${serverId}"]`).closest('.server-card');
+            const statusElement = serverCard.querySelector('.server-status');
+            
+            statusElement.className = 'server-status status-busy';
+            statusElement.textContent = '● Starting...';
+            
+            setTimeout(() => {
+                statusElement.className = 'server-status status-online';
+                statusElement.textContent = '● Online';
+                serverCard.setAttribute('data-status', 'online');
+                showNotification(`Server started successfully!`);
+            }, 3000);
+        }
+
+        function filterServers(searchTerm) {
+            const cards = document.querySelectorAll('.server-card');
+            cards.forEach(card => {
+                const serverName = card.querySelector('.server-name').textContent.toLowerCase();
+                const serverType = card.querySelector('.server-type').textContent.toLowerCase();
+                if (serverName.includes(searchTerm.toLowerCase()) || serverType.includes(searchTerm.toLowerCase())) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByStatus(status) {
+            const cards = document.querySelectorAll('.server-card');
+            cards.forEach(card => {
+                if (!status || card.getAttribute('data-status') === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByType(type) {
+            const cards = document.querySelectorAll('.server-card');
+            cards.forEach(card => {
+                if (!type || card.getAttribute('data-type') === type) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function exportServers() {
+            alert('Exporting server data...\n\nExport will include:\n• Server configurations\n• User access lists\n• Project assignments\n• Performance statistics\n\nFile will be downloaded as servers_export.xlsx');
+        }
+
+        function bulkActions() {
+            alert('Bulk Actions\n\nAvailable bulk operations:\n• Start/stop multiple servers\n• Update user permissions across servers\n• Assign servers to new projects\n• Export selected server data\n• Schedule maintenance windows');
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Simulate real-time server status updates
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                const cards = document.querySelectorAll('.server-card[data-status="online"]');
+                if (cards.length > 0) {
+                    const randomCard = cards[Math.floor(Math.random() * cards.length)];
+                    
+                    if (Math.random() > 0.95) { // 5% chance every 10 seconds
+                        const statusElement = randomCard.querySelector('.server-status');
+                        
+                        statusElement.className = 'server-status status-busy';
+                        statusElement.textContent = '● Processing';
+                        
+                        setTimeout(() => {
+                            statusElement.className = 'server-status status-online';
+                            statusElement.textContent = '● Online';
+                        }, 5000);
+                    }
+                }
+            }, 10000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            simulateRealTimeUpdates();
+        });
